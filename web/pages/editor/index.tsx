@@ -21,6 +21,10 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 
+import { GetServerSideProps , InferGetServerSidePropsType } from 'next';
+import { Profile } from '@context/user';
+import { User } from '@supabase/supabase-js';
+
 const EditorHead = () => (
 	<Head>
 		<title>Isaac Editor - AI-first Text Editor For Academic Writing</title>
@@ -37,8 +41,18 @@ const editorPageStyle = `
 	html, body { overflow: hidden; }
 `;
 
-const EditorPage = () => {
+type Props = User & Partial<Profile>
+
+export const getServerSideProps = (async()=>{	
 	const { user } = useUser();
+	return {
+		props:{
+			user
+		}
+	}
+}) satisfies GetServerSideProps<{user:Props}>
+
+const EditorPage = ({user}:InferGetServerSidePropsType<typeof getServerSideProps>) => {
 	const { data: projects, isError } = useGetProjects(user);
 	const editorWidth = useUIStore(s => s.editorWidth);
 	const setCreateNewProjectModalOpen = useUIStore(
