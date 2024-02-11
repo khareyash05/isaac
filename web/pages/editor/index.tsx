@@ -11,19 +11,20 @@ import {
 	SelectValue,
 } from '@components/ui/select';
 import { useUIStore } from '@context/ui.store';
-import { useUser } from '@context/user';
+import { Context, useUser } from '@context/user';
 import useHandleToastQuery from '@hooks/misc/useHandleToastQuery';
 import { useGetProjects } from '@resources/editor-page';
 import clsx from 'clsx';
 import { FolderPlus } from 'lucide-react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import toast from 'react-hot-toast';
 
-import { GetServerSideProps , InferGetServerSidePropsType } from 'next';
+import { GetServerSideProps } from 'next';
 import { Profile } from '@context/user';
 import { User } from '@supabase/supabase-js';
+import { useQuery } from '@tanstack/react-query';
 
 const EditorHead = () => (
 	<Head>
@@ -43,17 +44,24 @@ const editorPageStyle = `
 
 type Props = User & Partial<Profile>
 
-export const getServerSideProps = (async()=>{	
-	const { user } = useUser();
+const getPosts = async()=> useContext(Context)
+
+export const getServerSideProps : GetServerSideProps = (async()=>{	
+	const user = await getPosts()
 	return {
 		props:{
 			user
 		}
 	}
-}) satisfies GetServerSideProps<{user:Props}>
+})
 
-const EditorPage = ({user}:InferGetServerSidePropsType<typeof getServerSideProps>) => {
-	const { data: projects, isError } = useGetProjects(user);
+const EditorPage = (props) => {
+	const { data }  = useQuery({
+		queryKey:['user'],
+		queryFn: getPosts,
+		initialData:props.user
+	})
+	const { data: projects, isError } = useGetProjects(data);
 	const editorWidth = useUIStore(s => s.editorWidth);
 	const setCreateNewProjectModalOpen = useUIStore(
 		s => s.setCreateProjectPopoverOpen,

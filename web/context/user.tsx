@@ -25,7 +25,7 @@ export type Profile = {
 	editor_language: string;
 };
 
-const Context = createContext<{
+export const Context = createContext<{
 	user: User & Partial<Profile>;
 	userIsLoading: boolean;
 	setUser?: (user: User & Partial<Profile>) => void;
