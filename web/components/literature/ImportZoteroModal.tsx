@@ -19,7 +19,7 @@ import useGetEditorRouter from '@hooks/useGetEditorRouter';
 import { ZoteroToIsaacReferenceTypeMap } from '@utils/referenceTypeMapper';
 import { difference, every, includes, union } from 'lodash';
 import React, { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { ZoteroDocument } from 'types/integration';
 import { ReferenceSource, ReferenceType } from 'types/literatureReference.type';
 
@@ -58,10 +58,11 @@ const ImportZoteroModal = () => {
 					title: i.data.title,
 					year: i.data.date ? new Date(i.data.date).getFullYear() : undefined,
 					doi: i.data.DOI,
-					authors: i.data.creators?.map(author => ({
-						name: `${author.firstName} ${author.lastName}`,
-						authorId: '',
-					})),
+					authors:
+						i.data.creators?.map(author => ({
+							name: `${author.firstName} ${author.lastName}`,
+							authorId: '',
+						})) || [],
 					type,
 					sourceId: i.key,
 					source: ReferenceSource.ZOTERO,

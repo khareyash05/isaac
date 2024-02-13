@@ -1,14 +1,11 @@
-import {
-	ProPlanUpgradeToast,
-	reachedTokenLimitToastStyle,
-} from '@components/toast/ProPlanUpgradToast';
+import { ProPlanUpgradeToast } from '@components/toast/ProPlanUpgradToast';
 import { useUser } from '@context/user';
 import { QKFreeAIToken } from '@hooks/api/useFreeTierLimit.get';
 import useGetEditorRouter from '@hooks/useGetEditorRouter';
 import { useQueryClient } from '@tanstack/react-query';
 import { base64ToUint8Array } from '@utils/base64ToUint8Array';
 import { freePlanLimits } from 'data/pricingPlans';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { SSE } from 'sse.js';
 import { ChatContext } from 'types/chat';
 
@@ -34,7 +31,7 @@ const useStreamChatMessage = () => {
 	}) => {
 		const payload = JSON.stringify({
 			messages,
-			max_tokens: 2000,
+			max_tokens: 4000,
 			userId: user?.id,
 			projectId,
 			uploadId,
@@ -46,9 +43,7 @@ const useStreamChatMessage = () => {
 				user.is_subscribed === false &&
 				user.daily_free_token === freePlanLimits.dailyFreeToken
 			) {
-				toast.error(<ProPlanUpgradeToast target="AI" />, {
-					style: reachedTokenLimitToastStyle,
-				});
+				<ProPlanUpgradeToast target="AI" />;
 				return;
 			}
 
@@ -57,6 +52,7 @@ const useStreamChatMessage = () => {
 
 			// Start Streaming
 			source.addEventListener('message', async function (e) {
+				console.log(e.data);
 				const uint8Array = base64ToUint8Array(e.data);
 				const eventMessage = new TextDecoder('utf-8').decode(uint8Array);
 				if (eventMessage === '[DONE]') {

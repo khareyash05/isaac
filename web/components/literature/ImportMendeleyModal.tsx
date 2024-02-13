@@ -22,7 +22,7 @@ import useGetEditorRouter from '@hooks/useGetEditorRouter';
 import { mendeleyToIsaacReferenceTypeMap } from '@utils/referenceTypeMapper';
 import { difference, every, includes, union } from 'lodash';
 import React, { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { MendeleyDocument, MendeleyFolder } from 'types/integration';
 import { ReferenceSource, ReferenceType } from 'types/literatureReference.type';
 
@@ -80,10 +80,11 @@ const ImportMendeleyModal = () => {
 					title: i.title,
 					year: i.year,
 					doi: i.identifiers.doi,
-					authors: i.authors.map(author => ({
-						name: `${author.first_name} ${author.last_name}`,
-						authorId: '',
-					})),
+					authors:
+						i.authors?.map(author => ({
+							name: `${author.first_name} ${author.last_name}`,
+							authorId: '',
+						})) || [],
 					type,
 					sourceId: i.id,
 					source: ReferenceSource.MENDELEY,

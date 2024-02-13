@@ -10,7 +10,7 @@ import useDocumentTabs, { UniqueTabSources } from '@hooks/useDocumentTabs';
 import clsx from 'clsx';
 import { Send } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { ChatMessageV2 } from 'types/chat';
 // Types
 interface ChatInputProps {
@@ -104,12 +104,19 @@ const ChatInput = ({ sessionId, minimized }: ChatInputProps) => {
 			const { previousMessages, assistantMessage, userMessage } =
 				addNewMessage(sessionId);
 			setIsHandling(sessionId, true);
+
+			// Limit the number of previous messages to prevent exceeding token limits
+			const limitedPreviousMessages = previousMessages.slice(-5); // Keep only the last 5 messages
+
 			streamChatMessage({
 				uploadId: fileReference?.fileId || undefined,
 				context: chatContext,
 				messages: [
 					{ role: 'system', content: systemPrompt },
-					...previousMessages.map(m => ({ role: m.role, content: m.content })), //* Injecting older context
+					...limitedPreviousMessages.map(m => ({
+						role: m.role,
+						content: m.content,
+					})), // Injecting limited older context
 					{ role: 'user', content: userMessage.content },
 				],
 				onComplete: completedText => {
